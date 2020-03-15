@@ -21,6 +21,39 @@ function setAccessible($boolean) {
   }
 }
 
+function registerUser(
+  $username,
+  $fullName,
+  $email,
+  $password,
+  $repeatPassword
+) {
+  if ($password == $repeatPassword) {
+    if (!strpos($username, ' ')) {
+      $statement = Database::getInstance()
+        ->getConnection()
+        ->prepare('INSERT INTO users(username, password, displayName, email) VALUES ("'
+          . $username . '", "'
+          . password_hash($password,
+            PASSWORD_DEFAULT) . '", "' . $fullName
+          . '", "' . $email
+          . '")');
+
+      $statement->execute();
+    }
+    else {
+      echo '<div class="alert alert-danger py-0">'
+        . getConfig('register_space_in_username')
+        . '</div>';
+    }
+  }
+  else {
+    echo '<div class="alert alert-danger py-0">'
+      . getConfig('register_passwords_not_same')
+      . '</div>';
+  }
+}
+
 function postTweet($tweet) {
   $database  = Database::getInstance();
   $statement = $database->getConnection()
@@ -34,20 +67,8 @@ function refreshPage() {
   header('Location: ' . $_SERVER['HTTP_REFERER']);
 }
 
-function deleteTweet() {
-
-}
-
 function printTweets($tweets, $rank) {
   $database = Database::getInstance();
-
-  if (isset($_POST['tweetId'])) {
-    $statement = $database->getConnection()
-      ->prepare('UPDATE tweets SET likes = likes + 1 WHERE id = '
-        . $_POST['tweetId']);
-    $statement->execute();
-    refreshPage();
-  }
 
   switch ($rank) {
     case 'ADMINISTRATOR':
@@ -78,9 +99,11 @@ function printTweets($tweets, $rank) {
           . '<span class="mr-3 font-weight-bold">'
           . $tweet['likes']
           . '</span>'
-          . '<form action="" method="post">'
+          . '<form action="likeTweet.php" method="post">'
           . '<input type="hidden" name="tweetId" value="' . $tweet['id'] . '">'
-          . '<button class="btn btn-light" type="submit"><i class="far fa-thumbs-up"></i></button>'
+          . '<button class="btn btn-light" type="submit"'
+          . (strpos($author['likedTweets'], $tweet['id']) == TRUE ? ' disabled'
+            : '') . '><i class="far fa-thumbs-up"></i></button>'
           . '</form>'
           . '</div>'
           . '</div></div></div>'
@@ -114,9 +137,11 @@ function printTweets($tweets, $rank) {
           . '<span class="mr-3 font-weight-bold">'
           . $tweet['likes']
           . '</span>'
-          . '<form action="" method="post">'
+          . '<form action="likeTweet.php" method="post">'
           . '<input type="hidden" name="tweetId" value="' . $tweet['id'] . '">'
-          . '<button class="btn btn-light" type="submit"><i class="far fa-thumbs-up"></i></button>'
+          . '<button class="btn btn-light" type="submit"'
+          . (strpos($author['likedTweets'], $tweet['id']) == TRUE ? ' disabled'
+            : '') . '><i class="far fa-thumbs-up"></i></button>'
           . '</form>'
           . '</div>'
           . '</div></div></div>'

@@ -1,6 +1,5 @@
 <?php
 session_start();
-include 'includes/Database.class.php';
 ?>
 <!doctype html>
 <html lang="en">
@@ -12,8 +11,9 @@ include 'includes/Database.class.php';
 <?php include 'includes/navigation.inc.php' ?>
 <div class="container-fluid">
   <?php
-  if (!isLoggedIn())
+  if (!isLoggedIn()) {
     header('Location: login.php');
+  }
   ?>
 	<div class="row">
 		<div class="col-1"></div>
@@ -129,7 +129,56 @@ include 'includes/Database.class.php';
 			<div class="card mb-5">
 				<div class="card-header h6">Register a new user</div>
 				<div class="card-body">
-					<div class="card-text">TODO</div>
+					<div class="card-text">
+                      <?php
+                      if (isset($_POST['username'])
+                        && isset($_POST['password'])
+                      ) {
+                        registerUser($_POST['username'], $_POST['fullName'],
+                          $_POST['email'], $_POST['password'],
+                          $_POST['passwordRepeat']);
+                      }
+                      ?>
+						<form method="post" action="">
+							<div class="form-group">
+								<input value="<?= isset($_POST['username'])
+                                  ? $_POST['username'] : '' ?>" name="username"
+								       type="text"
+								       class="form-control"
+								       placeholder="Username" required>
+								<small class="form-text text-muted">Do not
+									include
+									spaces.</small>
+							</div>
+							<div class="form-group">
+								<input value="<?= isset($_POST['fullName'])
+                                  ? $_POST['fullName'] : '' ?>" name="fullName"
+								       type="text"
+								       class="form-control"
+								       placeholder="Full name" required>
+							</div>
+							<div class="form-group">
+								<input value="<?= isset($_POST['email'])
+                                  ? $_POST['email'] : '' ?>" name="email"
+								       type="email"
+								       class="form-control"
+								       placeholder="Email" required>
+							</div>
+							<div class="form-group">
+								<input name="password" type="password"
+								       class="form-control"
+								       placeholder="Password" required>
+							</div>
+							<div class="form-group">
+								<input name="passwordRepeat" type="password"
+								       class="form-control"
+								       placeholder="Repeat password" required>
+							</div>
+							<input class="btn btn-outline-success"
+							       type="submit"
+							       value="Sign them up">
+						</form>
+					</div>
 				</div>
 			</div>
 
